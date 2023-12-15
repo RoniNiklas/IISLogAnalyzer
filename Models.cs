@@ -19,8 +19,7 @@ public record struct LogRow(DateTime TimeInitialized, string Method, string Rela
         try
         {
             // the url containing spaces in the query string is a problem
-            line = line.Replace(" - ", " ");
-            var lineParts = line.Split(" ");
+            var lineParts = line.Split(' ');
 
             // For some stupid reason there can be a space in the url so we can't use linesplitting to get it, so we use the magical numbers 80 and 443 (port numbers?) as the end of the url.
             var urlStart = line.IndexOf(lineParts[3]) + lineParts[3].Length;
@@ -39,8 +38,8 @@ public record struct LogRow(DateTime TimeInitialized, string Method, string Rela
                 TimeInitialized: DateTime.Parse(lineParts[0] + " " + lineParts[1]),
                 Method: string.Intern(lineParts[3]),
                 RelativeUrl: string.Intern(requestUrl),
-                ClientIP: string.Intern(lineParts[^6]),
-                ClientDevice: string.Intern(lineParts[^5]),
+                ClientIP: string.Intern(lineParts[^7]),
+                ClientDevice: string.Intern(lineParts[^6]),
                 ResponseCode: (HttpStatusCode)int.Parse(lineParts[^4]),
                 RequestTimeTaken: TimeSpan.FromMilliseconds(int.Parse(lineParts[^1])));
         }
