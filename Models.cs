@@ -14,6 +14,7 @@ public record struct LogRow(DateTime TimeInitialized, string Method, string Rela
     public readonly string AppName => RelativeUrl.Contains('/')
             ? RelativeUrl.Split('/')[1]
             : RelativeUrl;
+
     public static LogRow FromLogLine(string line, int index)
     {
         try

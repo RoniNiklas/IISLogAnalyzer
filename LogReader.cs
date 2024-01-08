@@ -13,7 +13,7 @@ public class LogReader
         Parallel.ForEach(logFiles.Select((x, fileIndex) => (x, fileIndex)), (tuple) =>
         {
             var (logFilePath, fileIndex) = tuple;
-            //Console.WriteLine($"Reading file {fileIndex + 1} of {logFiles.Length}: {logFilePath}");
+            Console.WriteLine($"Reading file {fileIndex + 1} of {logFiles.Length}: {logFilePath}");
 
             var loggedRows = new List<LogRow>(MIN_LOG_ROW_COUNT);
             using var reader = new StreamReader(logFilePath);
@@ -41,7 +41,7 @@ public class LogReader
         });
 
         var end = Stopwatch.GetTimestamp();
-        //Console.WriteLine($"Reading all logs took {(end - start) / (double)Stopwatch.Frequency} seconds");
+        Console.WriteLine($"Reading all logs took {(end - start) / (double)Stopwatch.Frequency} seconds");
         return loggedDates;
     }
 }
