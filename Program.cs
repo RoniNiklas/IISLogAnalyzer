@@ -3,11 +3,28 @@ using ServerLogAnalyzer;
 using System.Diagnostics;
 using System.Text.Json;
 
-var settings = JsonSerializer.Deserialize(File.ReadAllText("AppSettings.json"), AppSettingsContext.Default.AppSettings) ?? new();
+var settings = new AppSettings();
+try
+{
+    settings = JsonSerializer.Deserialize(File.ReadAllText("AppSettings.json"), AppSettingsContext.Default.AppSettings)!;
+}
+catch (JsonException e)
+{
+    Console.WriteLine("AppSettings.json is not valid JSON");
+    Console.WriteLine(e.Message);
+    Console.WriteLine("Press any key to exit");
+    Console.ReadKey();
+    return;
+}
+catch (FileNotFoundException e)
+{
+    // ignore since it's not a mandatory file
+}
 
 // get input directory
-Console.WriteLine($"Only reads the latest {settings.MaxNumberOfFiles} files. Adjust the MaxNumberOfFiles amount in AppSettings.json.");
-Console.WriteLine("Give complete path to directory of the log files or leave empty to use the InputDirectory from AppSettings.json. Leave the Appsettings default dir empty to use current dir as default.");
+Console.WriteLine($"Running with settings: {settings}");
+Console.WriteLine();
+Console.WriteLine($"Give the complete path to the directory of the log files or leave empty to use the InputDirectory from AppSettings.json ({settings.InputDirectory}). Leave the InputDirectory in AppSettings.json empty to use current directory by default.");
 var inputDir = Console.ReadLine();
 if (string.IsNullOrWhiteSpace(inputDir))
 {
@@ -24,7 +41,7 @@ if (inputDir.Last() != '\\')
 }
 
 // get output directory
-Console.WriteLine("Give complete path to directory of the CSV output or leave empty to use the OutputDirectory from AppSettings.json. Leave the Appsettings default dir empty to use current dir as default.");
+Console.WriteLine($"Give the complete path to the directory of the CSV output or leave empty to use the OutputDirectory from AppSettings.json ({settings!.OutputDirectory}). Leave the OutputDirectory in AppSettings.json empty to use current directory by default.");
 var outputDir = Console.ReadLine();
 if (string.IsNullOrWhiteSpace(outputDir))
 {
@@ -41,7 +58,7 @@ if (outputDir.Last() != '\\')
 }
 
 // Read Data
-var loggedDates = LogReader.ReadLogsFromDirectory(inputDir, settings.MaxNumberOfFiles);
+var loggedDates = LogReader.ReadLogsFromDirectory(inputDir, settings!.MaxNumberOfFiles);
 
 // Write CSVs
 var fileNames = new List<string>

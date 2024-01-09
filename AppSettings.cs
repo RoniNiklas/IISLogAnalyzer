@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace ServerLogAnalyzer;
-public class AppSettings
+public record AppSettings
 {
     public string InputDirectory { get; set; } = "";
     public string OutputDirectory { get; set; } = "";
