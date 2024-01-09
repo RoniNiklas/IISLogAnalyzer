@@ -6,6 +6,7 @@ using System.Text.Json;
 var settings = JsonSerializer.Deserialize(File.ReadAllText("AppSettings.json"), AppSettingsContext.Default.AppSettings) ?? new();
 
 // get input directory
+Console.WriteLine($"Only reads the latest {settings.MaxNumberOfFiles} files. Adjust the MaxNumberOfFiles amount in AppSettings.json.");
 Console.WriteLine("Give complete path to directory of the log files or leave empty to use the InputDirectory from AppSettings.json. Leave the Appsettings default dir empty to use current dir as default.");
 var inputDir = Console.ReadLine();
 if (string.IsNullOrWhiteSpace(inputDir))
@@ -40,7 +41,7 @@ if (outputDir.Last() != '\\')
 }
 
 // Read Data
-var loggedDates = LogReader.ReadAllLogsFromDirectoryByDate(inputDir);
+var loggedDates = LogReader.ReadLogsFromDirectory(inputDir, settings.MaxNumberOfFiles);
 
 // Write CSVs
 var fileNames = new List<string>
