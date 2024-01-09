@@ -16,7 +16,7 @@ public class CSVWriter
 
     public static string WriteApplicationAccessCountAndTimeAveragePerRequest(IEnumerable<LoggedDate> loggedDates, string directory)
     {
-        Console.WriteLine("Writing ViewDocument request times");
+        Console.WriteLine("Writing request counts and average times per app");
         var sb = new StringBuilder();
         sb.AppendLine(GetCSVRow("Application", "Count", "AverageTimePerRequest"));
 

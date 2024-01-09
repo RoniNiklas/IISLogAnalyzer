@@ -49,6 +49,7 @@ var fileNames = new List<string>
     CSVWriter.WriteViewDocumentRequestTimes(loggedDates, outputDir),
     CSVWriter.WriteApplicationAccessCountAndTimeAveragePerRequest(loggedDates, outputDir)
 };
+Console.WriteLine("Done!");
 Console.WriteLine("Press Y to close and open the CSV files");
 Console.WriteLine("Press N to close without opening the files");
 
