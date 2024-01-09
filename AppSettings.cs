@@ -1,11 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace ServerLogAnalyzer;
-public record AppSettings
+public record AppSettings(string InputDirectory = "", string OutputDirectory = "", int MaxNumberOfFiles = 100)
 {
-    public string InputDirectory { get; set; } = "";
-    public string OutputDirectory { get; set; } = "";
-    public int MaxNumberOfFiles { get; set; } = 100;
+    public string[] IgnoredFileEndings { get; init; } = [".jpg", ".png", ".ico", ".gif", ".svg", ".otf", ".ttf", ".fnt", ".font", ".css", ".js", ".txt"];
 }
 
 [JsonSerializable(typeof(AppSettings))]

@@ -14,7 +14,7 @@ public class CSVWriter
         return sb.ToString();
     }
 
-    public static string WriteApplicationAccessCountAndTimeAveragePerRequest(IEnumerable<LoggedDate> loggedDates, string directory)
+    public static string WriteApplicationAccessCountAndTimeAveragePerRequest(IEnumerable<LoggedDate> loggedDates, string[] ignoredFileEndings, string directory)
     {
         Console.WriteLine("Writing request counts and average times per app");
         var sb = new StringBuilder();
@@ -22,6 +22,9 @@ public class CSVWriter
 
         var requestCountAndAverageTimeTakenPerApplication = loggedDates
             .SelectMany(x => x.Logs)
+            .Where(e => e.RelativeUrl != null
+                && !ignoredFileEndings.Any(ending => e.RelativeUrl.EndsWith(ending))
+                && !e.RelativeUrl.Contains("favicon"))
             .GroupBy(logRow => logRow.AppName)
             .Select(appGroup => new
             {
