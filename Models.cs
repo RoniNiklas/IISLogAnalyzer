@@ -56,7 +56,6 @@ public readonly record struct LogRow(DateTime TimeInitialized, string Method, st
                 requestUrl = requestUrl[..^1];
             }
 
-
             return new LogRow(
                 TimeInitialized: DateTime.Parse(lineParts[0] + " " + lineParts[1]),
                 Method: string.Intern(lineParts[3]),
