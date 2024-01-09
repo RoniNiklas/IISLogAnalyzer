@@ -14,50 +14,36 @@ public class CSVWriter
         return sb.ToString();
     }
 
-    public static void WriteSIIRTORequestTimes(List<LoggedDate> loggedDates)
+    public static string WriteApplicationAccessCountAndTimeAveragePerRequest(IEnumerable<LoggedDate> loggedDates, string directory)
     {
+        Console.WriteLine("Writing ViewDocument request times");
         var sb = new StringBuilder();
-        sb.AppendLine(GetCSVRow("Date", "RequestUrl", "Method", "Count", "AverageTimeTaken"));
-        var requestTimePerDatePerMethodPerURLInSiirtoRekisteri = loggedDates
-            .GroupBy(loggedDate => loggedDate.Date)
-            .Select(dateGroup => new
+        sb.AppendLine(GetCSVRow("Application", "Count", "AverageTimePerRequest"));
+
+        var requestCountAndAverageTimeTakenPerApplication = loggedDates
+            .SelectMany(x => x.Logs)
+            .GroupBy(logRow => logRow.AppName)
+            .Select(appGroup => new
             {
-                Date = dateGroup.Key,
-                RequestTimePerMethodPerURL = dateGroup
-                    .SelectMany(loggedDate => loggedDate.Logs)
-                    .Where(logRow => logRow.AppName == "siirto")
-                    .GroupBy(logRow => logRow.RelativeUrl)
-                    .Select(urlGroup => new
-                    {
-                        RequestUrl = urlGroup.Key,
-                        RequestTimePerMethod = urlGroup
-                            .GroupBy(logRow => logRow.Method)
-                            .Select(methodGroup => new
-                            {
-                                Method = methodGroup.Key,
-                                CountOfRequests = methodGroup.Count(),
-                                AverageTimeTaken = methodGroup.Average(logRow => logRow.RequestTimeTaken.TotalMilliseconds)
-                            })
-                            .OrderBy(x => x.Method)
-                    })
-                    .OrderBy(x => x.RequestUrl)
+                AppName = appGroup.Key,
+                CountOfRequests = appGroup.Count(),
+                AverageTimeTaken = appGroup.Average(logRow => logRow.RequestTimeTaken.TotalMilliseconds)
             })
-            .OrderBy(x => x.Date)
+            .OrderByDescending(x => x.CountOfRequests)
             .ToList();
 
-        foreach (var dateGroup in requestTimePerDatePerMethodPerURLInSiirtoRekisteri)
+        foreach (var appGroup in requestCountAndAverageTimeTakenPerApplication)
         {
-            foreach (var urlGroup in dateGroup.RequestTimePerMethodPerURL)
-            {
-                foreach (var methodGroup in urlGroup.RequestTimePerMethod)
-                {
-                    sb.AppendLine(GetCSVRow(dateGroup.Date.ToString("dd.MM.yyyy"), urlGroup.RequestUrl, methodGroup.Method, methodGroup.CountOfRequests, (int)double.Round(methodGroup.AverageTimeTaken)));
-                }
-            }
+            sb.AppendLine(GetCSVRow(appGroup.AppName, appGroup.CountOfRequests, (int)double.Round(appGroup.AverageTimeTaken)));
         }
-        File.WriteAllText("SIIRTORequestTimesPerDate.csv", sb.ToString());
+
+        var fileName = "ApplicationAccessCountAndTimeAveragePerRequest.csv";
+        File.WriteAllText(directory + fileName, sb.ToString());
+        return fileName;
+
     }
-    public static string WriteViewDocumentRequestTimes(in IEnumerable<LoggedDate> loggedDates, string directory)
+
+    public static string WriteViewDocumentRequestTimes(IEnumerable<LoggedDate> loggedDates, string directory)
     {
         Console.WriteLine("Writing ViewDocument request times");
         var sb = new StringBuilder();

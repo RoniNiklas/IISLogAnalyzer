@@ -19,16 +19,19 @@ public class LogReader
             using var reader = new StreamReader(logFilePath);
             var index = 0;
             var line = "";
+
             while ((line = reader.ReadLine()) != null)
             {
                 if (line.StartsWith('#')) // metadata rows
                 {
                     continue;
                 }
+
                 if (line.Contains("sidkarta")) // common bot url
                 {
                     continue;
                 }
+
                 index++;
                 var logRow = useNewWay
                     ? LogRow.FromLogLineNew(line, index)

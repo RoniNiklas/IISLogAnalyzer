@@ -1,32 +1,64 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using ServerLogAnalyzer;
 using System.Diagnostics;
+using System.Text.Json;
 
-Console.WriteLine("Give complete path to directory or leave empty to use the current directory");
-var dir = Console.ReadLine();
-if (string.IsNullOrWhiteSpace(dir))
+var settings = JsonSerializer.Deserialize(File.ReadAllText("AppSettings.json"), AppSettingsContext.Default.AppSettings) ?? new();
+
+// get input directory
+Console.WriteLine("Give complete path to directory of the log files or leave empty to use the InputDirectory from AppSettings.json. Leave the Appsettings default dir empty to use current dir as default.");
+var inputDir = Console.ReadLine();
+if (string.IsNullOrWhiteSpace(inputDir))
 {
-    dir = "C:\\Users\\E1007795\\Desktop\\isov2logs"; //AppDomain.CurrentDomain.BaseDirectory;
+    inputDir = string.IsNullOrWhiteSpace(settings?.InputDirectory)
+        ? AppDomain.CurrentDomain.BaseDirectory
+        : settings.InputDirectory;
 }
 
-dir = dir.Trim();
+inputDir = inputDir.Trim();
 
-if (dir.Last() != '\\')
+if (inputDir.Last() != '\\')
 {
-    dir += "\\"; // add trailing slash
+    inputDir += "\\"; // add trailing slash
 }
 
-var loggedDates = LogReader.ReadAllLogsFromDirectoryByDate(dir);
+// get output directory
+Console.WriteLine("Give complete path to directory of the CSV output or leave empty to use the OutputDirectory from AppSettings.json. Leave the Appsettings default dir empty to use current dir as default.");
+var outputDir = Console.ReadLine();
+if (string.IsNullOrWhiteSpace(outputDir))
+{
+    outputDir = string.IsNullOrWhiteSpace(settings?.OutputDirectory)
+        ? AppDomain.CurrentDomain.BaseDirectory
+        : settings.OutputDirectory;
+}
 
-var vdCSVName = CSVWriter.WriteViewDocumentRequestTimes(loggedDates, dir);
-Console.WriteLine("Press Y to open the ViewDocument CSV file");
-Console.WriteLine("Press N to close the program");
+outputDir = outputDir.Trim();
+
+if (outputDir.Last() != '\\')
+{
+    outputDir += "\\"; // add trailing slash
+}
+
+// Read Data
+var loggedDates = LogReader.ReadAllLogsFromDirectoryByDate(inputDir);
+
+// Write CSVs
+var fileNames = new List<string>
+{
+    CSVWriter.WriteViewDocumentRequestTimes(loggedDates, outputDir),
+    CSVWriter.WriteApplicationAccessCountAndTimeAveragePerRequest(loggedDates, outputDir)
+};
+Console.WriteLine("Press Y to close and open the CSV files");
+Console.WriteLine("Press N to close without opening the files");
 
 var key = Console.ReadKey();
 if (key.Key == ConsoleKey.Y)
 {
-    new Process()
+    foreach (var fileName in fileNames)
     {
-        StartInfo = new ProcessStartInfo { FileName = dir + vdCSVName, UseShellExecute = true }
-    }.Start();
+        new Process()
+        {
+            StartInfo = new ProcessStartInfo { FileName = outputDir + fileName, UseShellExecute = true }
+        }.Start();
+    }
 }
