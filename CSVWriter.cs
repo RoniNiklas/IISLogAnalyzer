@@ -105,4 +105,48 @@ public class CSVWriter
         File.WriteAllText(directory + fileName, sb.ToString());
         return fileName;
     }
+
+    public static string WriteSIIRTORekisteriRequestCountPerDate(IEnumerable<LoggedDate> loggedDates, string[] ignoredUrlEndings, string directory)
+    {
+
+        Console.WriteLine("Writing ViewDocument request counts per date");
+        var sb = new StringBuilder();
+        sb.AppendLine(GetCSVRow("Url", "Method", "Count per date"));
+        var numberOfDates = (double)loggedDates.Count();
+
+        var averageRequestCountPerDayPerMethodPerUrl = loggedDates
+            .SelectMany(e => e.Logs)
+            .Where(e => e.AppName == "siirto"
+                && !ignoredUrlEndings.Any(ending => e.RelativeUrl.EndsWith(ending)))
+            .Select(e => new
+            {
+                RelativeUrl = Guid.TryParse(e.RelativeUrl.Split('/').Last(), out _)
+                    ? e.RelativeUrl[..e.RelativeUrl.LastIndexOf('/')]
+                    : e.RelativeUrl,
+                e.Method
+            })
+            .GroupBy(logRow => new
+            {
+                logRow.RelativeUrl,
+                logRow.Method
+            })
+            .Select(e => new
+            {
+                e.Key.RelativeUrl,
+                e.Key.Method,
+                CountPerDate = double.Round(e.Count() / numberOfDates)
+            })
+            .OrderByDescending(e => e.CountPerDate)
+            .ToList();
+
+
+        foreach (var dateGroup in averageRequestCountPerDayPerMethodPerUrl)
+        {
+            sb.AppendLine(GetCSVRow(dateGroup.RelativeUrl, dateGroup.Method, dateGroup.CountPerDate));
+        }
+
+        var fileName = "SIIRTORekisteriRequestCountPerDate.csv";
+        File.WriteAllText(directory + fileName, sb.ToString());
+        return fileName;
+    }
 }

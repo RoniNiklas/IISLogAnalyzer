@@ -64,7 +64,8 @@ var loggedDates = LogReader.ReadLogsFromDirectory(inputDir, settings!.MaxNumberO
 var fileNames = new List<string>
 {
     CSVWriter.WriteViewDocumentRequestTimesPerDate(loggedDates, outputDir),
-    CSVWriter.WriteApplicationAccessCountAndTimeAveragePerRequest(loggedDates, settings.IgnoredFileEndings, outputDir)
+    CSVWriter.WriteSIIRTORekisteriRequestCountPerDate(loggedDates, settings.IgnoredFileEndings, outputDir),
+    CSVWriter.WriteApplicationAccessCountAndTimeAveragePerRequest(loggedDates, settings.IgnoredFileEndings, outputDir),
 };
 Console.WriteLine("Done!");
 Console.WriteLine("Press Y to close and open the CSV files");
