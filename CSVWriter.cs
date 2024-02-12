@@ -46,7 +46,7 @@ public class CSVWriter
 
     }
 
-    public static string WriteViewDocumentRequestTimes(IEnumerable<LoggedDate> loggedDates, string directory)
+    public static string WriteViewDocumentRequestTimesPerDate(IEnumerable<LoggedDate> loggedDates, string directory)
     {
         Console.WriteLine("Writing ViewDocument request times");
         var sb = new StringBuilder();

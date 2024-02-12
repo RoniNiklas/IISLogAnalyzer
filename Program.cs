@@ -63,7 +63,7 @@ var loggedDates = LogReader.ReadLogsFromDirectory(inputDir, settings!.MaxNumberO
 // Write CSVs
 var fileNames = new List<string>
 {
-    CSVWriter.WriteViewDocumentRequestTimes(loggedDates, outputDir),
+    CSVWriter.WriteViewDocumentRequestTimesPerDate(loggedDates, outputDir),
     CSVWriter.WriteApplicationAccessCountAndTimeAveragePerRequest(loggedDates, settings.IgnoredFileEndings, outputDir)
 };
 Console.WriteLine("Done!");
