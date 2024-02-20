@@ -57,8 +57,17 @@ if (outputDir.Last() != '\\')
     outputDir += "\\"; // add trailing slash
 }
 
+// Get number of files analyzed
+Console.WriteLine($"Give the maximum number of log files to analyze or leave empty to use the MaxNumberOfFiles from AppSettings.json ({settings!.MaxNumberOfFiles}). The files are ordered by date of last modification.");
+var maxFileCount = settings.MaxNumberOfFiles;
+var maxFileCountInput = Console.ReadLine();
+if (!string.IsNullOrWhiteSpace(maxFileCountInput) && int.TryParse(maxFileCountInput, out var parsedMaxFileCount))
+{
+    maxFileCount = parsedMaxFileCount;
+}
+
 // Read Data
-var loggedDates = LogReader.ReadLogsFromDirectory(inputDir, settings!.MaxNumberOfFiles);
+var loggedDates = LogReader.ReadLogsFromDirectory(inputDir, maxFileCount);
 
 // Write CSVs
 var fileNames = new List<string>
